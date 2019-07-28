@@ -1,11 +1,11 @@
 import MySQLdb
 
 class PibbleDatabase:
-    def __init__(paramMysql=None):
+    def __init__(self, paramMysql=None):
         if not paramMysql == None:
             self.params = paramMysql
         else:
-            self.params = = {
+            self.params = {
                 'host'   : 'localhost',
                 'user'   : 'root',
                 'passwd' : 'test',

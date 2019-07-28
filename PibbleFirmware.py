@@ -49,7 +49,7 @@ objs = [{
   }]
 
 
-@app.route('/objects/<str:name>', methods=['GET'])
+@app.route('/objects/<string:name>', methods=['GET'])
 def getObjectByName(name):
     return jsonify(database.getObjectByName(name))
 
