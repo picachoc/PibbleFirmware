@@ -1,7 +1,10 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 from service import PibbleDatabase
 
 app = Flask(__name__)
+CORS(app)
+
 
 database = PibbleDatabase.PibbleDatabase()
 
@@ -49,9 +52,9 @@ objs = [{
   }]
 
 
-@app.route('/objects/<string:name>', methods=['GET'])
-def getObjectByName(name):
-    return jsonify(database.getObjectByName(name))
+@app.route('/<string:table>/<string:name>', methods=['GET'])
+def getObjectByName(table, name):
+    return jsonify(database.getObjectByName(table, name))
 
 @app.route('/command/track', methods=['GET'])
 def get_track():
