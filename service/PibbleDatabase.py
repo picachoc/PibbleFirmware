@@ -9,14 +9,14 @@ class PibbleDatabase:
                 'host'   : 'localhost',
                 'user'   : 'root',
                 'passwd' : 'test',
-                'db'     : 'pibble_catalog'
+                'db'     : 'test'
             }
 
         try:
             self.conn = MySQLdb.connect(**self.params)
-            self.cursor = conn.cursor()
-        except(Exception):
-            print("An error occured during connection to DB.")
+            self.cursor = self.conn.cursor()
+        except(Exception) as err:
+            print(err)
     
     def getNames(self):
         self.cursor.execute("SELECT * FROM objects")
@@ -32,7 +32,7 @@ class PibbleDatabase:
         return collNames
 
     def getObjectByName(self, name):
-        self.cursor.execute("SELECT * FROM objects WHERE NAME = {}".format(name))
+        self.cursor.execute("SELECT * FROM objects WHERE NAME = '{}'".format(name))
         row = self.cursor.fetchall()
         return row
 
