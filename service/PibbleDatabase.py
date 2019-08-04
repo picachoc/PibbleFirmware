@@ -28,6 +28,19 @@ class PibbleDatabase:
         types = self.cursor.fetchall()
         return types
 
+    def getAllFromTable(self, table=None):
+        liste = []
+        self.cursor.execute("SELECT * FROM {}".format(table))
+        row = self.cursor.fetchall()
+        collNames = self.getAllCollumns(table)
+        index = 0
+        for obj in row:
+            liste.append({})
+            for x in range(0,len(collNames)):
+                liste[index].update({collNames[x] : obj[x]})
+            index += 1
+        return liste
+
     def getAllCollumns(self, table):
         collNames = []
         self.cursor.execute("SHOW COLUMNS FROM {}".format(table))

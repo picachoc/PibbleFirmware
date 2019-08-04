@@ -51,14 +51,19 @@ objs = [{
     "NOTES": "compact"
   }]
 
+@app.route('/catalog/<string:table>', methods=['GET'])
+def getAllFromTable(table):
+    return jsonify(database.getAllFromTable(table))
 
 @app.route('/catalog/<string:table>/<string:name>', methods=['GET'])
-def getObjectByName(table, name):
+def getObjectByName(table, name=None):
+    if name == None:
+        name = "NULL"
     return jsonify(database.getObjectByName(table, name))
 
-@app.route('/objects/types', method=['GET'])
+@app.route('/objects/types', methods=['GET'])
 def getTypes():
-    return jsonify(database.getTypes(table, name))
+    return jsonify(database.getTypes())
 
 
 @app.route('/command/track', methods=['GET'])
