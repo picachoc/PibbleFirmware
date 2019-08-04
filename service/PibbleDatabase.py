@@ -9,7 +9,7 @@ class PibbleDatabase:
                 'host'   : 'localhost',
                 'user'   : 'root',
                 'passwd' : 'test',
-                'db'     : 'test'
+                'db'     : 'pibble_catalog'
             }
 
         try:
@@ -27,6 +27,11 @@ class PibbleDatabase:
         self.cursor.execute("SELECT DISTINCT type FROM objects")
         types = self.cursor.fetchall()
         return types
+        
+    def getConstelations(self, table):
+        self.cursor.execute("SELECT DISTINCT constelation FROM {}".format(table))
+        constelations = self.cursor.fetchall()
+        return constelations
 
     def getAllFromTable(self, table=None):
         liste = []

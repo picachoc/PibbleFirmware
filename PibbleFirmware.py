@@ -65,6 +65,9 @@ def getObjectByName(table, name=None):
 def getTypes():
     return jsonify(database.getTypes())
 
+@app.route('/<string:table>/constelations', methods=['GET'])
+def getConstelations(table):
+    return jsonify(database.getConstelations(table))
 
 @app.route('/command/track', methods=['GET'])
 def get_track():
