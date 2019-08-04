@@ -52,9 +52,10 @@ objs = [{
   }]
 
 
-@app.route('/<string:table>/<string:name>', methods=['GET'])
+@app.route('/catalog/<string:table>/<string:name>', methods=['GET'])
 def getObjectByName(table, name):
     return jsonify(database.getObjectByName(table, name))
+
 
 @app.route('/command/track', methods=['GET'])
 def get_track():
