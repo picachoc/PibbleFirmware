@@ -56,6 +56,10 @@ objs = [{
 def getObjectByName(table, name):
     return jsonify(database.getObjectByName(table, name))
 
+@app.route('/objects/types', method=['GET'])
+def getTypes():
+    return jsonify(database.getTypes(table, name))
+
 
 @app.route('/command/track', methods=['GET'])
 def get_track():

@@ -23,6 +23,11 @@ class PibbleDatabase:
         names = self.cursor.fetchall()
         return names
 
+    def getTypes(self):
+        self.cursor.execute("SELECT DISTINCT type FROM objects")
+        types = self.cursor.fetchall()
+        return types
+
     def getAllCollumns(self, table):
         collNames = []
         self.cursor.execute("SHOW COLUMNS FROM {}".format(table))
@@ -31,7 +36,7 @@ class PibbleDatabase:
             collNames.append(collumn[0])
         return collNames
 
-    def getObjectByName(self, table, name):
+    def getObjectByName(self, table=None, name=None):
         objs_dict = {}
         self.cursor.execute("SELECT * FROM objects WHERE NAME = '{}'".format(name))
         row = self.cursor.fetchall()
