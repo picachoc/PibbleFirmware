@@ -2,7 +2,7 @@
 Pibble's Control Firmware (database API, hardware control, command API)
 
 ## Dependencies
-To install them with pip, just type the follwing:
+To install the dependencies with pip, use:
 ```
 pip install -r requirements.txt
 ```
