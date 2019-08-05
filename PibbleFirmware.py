@@ -1,12 +1,17 @@
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from service import PibbleDatabase
+from utilities/configLoader import *
+
+
+CONF_PATH = os.getcwd() + "/config.txt"
 
 app = Flask(__name__)
 CORS(app)
 
-
-database = PibbleDatabase.PibbleDatabase()
+config = getConfig(CONF_PATH)
+database = PibbleDatabase.PibbleDatabase(config)
 
 objs = [{
     "OBJECT": "NGC 7831",
@@ -65,9 +70,9 @@ def getObjectByName(table, name=None):
 def getTypes():
     return jsonify(database.getTypes())
 
-@app.route('/<string:table>/constelations', methods=['GET'])
-def getConstelations(table):
-    return jsonify(database.getConstelations(table))
+@app.route('/<string:table>/constellations', methods=['GET'])
+def getConstellations(table):
+    return jsonify(database.getConstellations(table))
 
 @app.route('/command/track', methods=['GET'])
 def get_track():

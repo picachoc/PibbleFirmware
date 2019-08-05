@@ -6,14 +6,14 @@ class PibbleDatabase:
             self.params = paramMysql
         else:
             self.params = {
-                'host'   : 'localhost',
-                'user'   : 'root',
-                'passwd' : 'test',
-                'db'     : 'pibble_catalog'
+                'db_host'   : 'localhost',
+                'db_user'   : 'root',
+                'db_password' : 'test',
+                'db_name'     : 'pibble_catalog'
             }
 
         try:
-            self.conn = MySQLdb.connect(**self.params)
+            self.conn = MySQLdb.connect(host=self.params["db_host"], user=self.params["db_user"], passwd=self.params["db_password"], db=self.params["db_name"])
             self.cursor = self.conn.cursor()
         except(Exception) as err:
             print(err)
@@ -28,10 +28,10 @@ class PibbleDatabase:
         types = self.cursor.fetchall()
         return types
         
-    def getConstelations(self, table):
-        self.cursor.execute("SELECT DISTINCT constelation FROM {}".format(table))
-        constelations = self.cursor.fetchall()
-        return constelations
+    def getConstellations(self, table):
+        self.cursor.execute("SELECT DISTINCT constellation FROM {}".format(table))
+        constellations = self.cursor.fetchall()
+        return constellations
 
     def getAllFromTable(self, table=None):
         liste = []
