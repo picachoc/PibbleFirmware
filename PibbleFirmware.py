@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from service import PibbleDatabase
-from utilities/configLoader import *
+from utilities.configLoader import *
 
 
 CONF_PATH = os.getcwd() + "/config.txt"
