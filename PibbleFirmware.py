@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from service import PibbleDatabase
 from utilities.configLoader import *
@@ -12,6 +12,7 @@ CORS(app)
 
 config = getConfig(CONF_PATH)
 database = PibbleDatabase.PibbleDatabase(config)
+
 
 objs = [{
     "OBJECT": "NGC 7831",
@@ -58,7 +59,10 @@ objs = [{
 
 @app.route('/catalog/<string:table>', methods=['GET'])
 def getAllFromTable(table):
-    return jsonify(database.getAllFromTable(table))
+    args = {}
+    for key in request.args.keys():
+        args.update({key : request.args.get(key)})
+    return jsonify(database.getAllFromTable(table, args))
 
 @app.route('/catalog/<string:table>/<string:name>', methods=['GET'])
 def getObjectByName(table, name=None):

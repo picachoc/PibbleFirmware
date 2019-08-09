@@ -1,4 +1,4 @@
 db_host = localhost
 db_user = root
 db_password = test
-db_name = pibble_catalog
+db_name = test
