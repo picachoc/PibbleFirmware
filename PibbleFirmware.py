@@ -1,61 +1,60 @@
 import os
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
 from service import PibbleDatabase
+from service import PibbleBrain
+
 from utilities.configLoader import *
 
+from datetime import datetime
 
+INFOS_PATH = os.getcwd() + "/informations.txt"
 CONF_PATH = os.getcwd() + "/config.txt"
 
 app = Flask(__name__)
 CORS(app)
 
+brain = PibbleBrain.PibbleBrain()
+
 config = getConfig(CONF_PATH)
-database = PibbleDatabase.PibbleDatabase(config)
+database = PibbleDatabase.PibbleDatabase(brain, config)
+
+software_informations = getConfig(INFOS_PATH)
+
+@app.route('/setup/init', methods=['GET'])
+def setupInit():
+    database.getAlignInit()
+    return jsonify(None)
+
+@app.route('/setup/reset', methods=['GET'])
+def setupReset():
+    return jsonify(None)
+
+@app.route('/setup/validate', methods=['GET'])
+def setupValidate():
+    return jsonify(None)
+
+@app.route('/setup/point', methods=['GET'])
+def setupPoint():
+    return jsonify(None)
 
 
-objs = [{
-    "OBJECT": "NGC 7831",
-    "OTHER": "IC 1530",
-    "TYPE": "GALXY",
-    "CON": "AND",
-    "RA": "00 07.3",
-    "DEC": "+32 37",
-    "MAG": "12,8",
-    "SUBR": "12,3",
-    "U2K": 89,
-    "TI": 4,
-    "SIZE_MAX": "1.5 m",
-    "SIZE_MIN": "0.3 m",
-    "PA": 38,
-    "CLASS": "Sb",
-    "NSTS": "",
-    "BRSTR": "",
-    "BCHM": "",
-    "NGC DESCR": "eF;vS;mE;vF*v nr",
-    "NOTES": ""
-  },
-  {
-    "OBJECT": "NGC    5",
-    "OTHER": "UGC    62",
-    "TYPE": "GALXY",
-    "CON": "AND",
-    "RA": "00 07.8",
-    "DEC": "+35 22",
-    "MAG": "13,3",
-    "SUBR": "13,2",
-    "U2K": 89,
-    "TI": 4,
-    "SIZE_MAX": "1.2 m",
-    "SIZE_MIN": "0.7 m",
-    "PA": 115,
-    "CLASS": "Elliptical",
-    "NSTS": "",
-    "BRSTR": "",
-    "BCHM": "",
-    "NGC DESCR": "vF;vS;N=*13;14",
-    "NOTES": "compact"
-  }]
+@app.route('/connection', methods=['GET'])
+def connexion():
+    args = {}
+    for key in request.args.keys():
+        args.update({key : request.args.get(key)})
+    brain.telescope_coords["latitude"] = float(args["latitude"])
+    brain.telescope_coords["longitude"] = float(args["longitude"])
+    brain.times["telescope_start_time"] = datetime.fromtimestamp(float(args["timestamp"])/1000.0)
+    brain.times["system_start_time"] = datetime.utcnow()
+    brain.times["delta_time"] = brain.times["telescope_start_time"] - brain.times["system_start_time"]
+    print(brain.times["telescope_start_time"], flush=True)
+    brain.init()
+    return jsonify({"inited" : brain.inited})
+    
 
 @app.route('/catalog/<string:table>', methods=['GET'])
 def getAllFromTable(table):
@@ -70,6 +69,12 @@ def getObjectByName(table, name=None):
         name = "NULL"
     return jsonify(database.getObjectByName(table, name))
 
+@app.route('/catalog', methods=['POST'])
+def addUserObject():
+    
+    return jsonify(None)
+
+
 @app.route('/objects/types', methods=['GET'])
 def getTypes():
     return jsonify(database.getTypes())
@@ -78,12 +83,31 @@ def getTypes():
 def getConstellations(table):
     return jsonify(database.getConstellations(table))
 
+
 @app.route('/command/track', methods=['GET'])
-def get_track():
-    print("track")
-    return jsonify(objs[0]["OTHER"])
+def getTrack():
+    print("track", flush=True)
+    return jsonify(None)
+
+@app.route('/command/move', methods=['GET'])
+def move():
+    for key in request.args.keys():
+        args.update({key : request.args.get(key)})
+    return jsonify(motor.commandMove(args)) ## keys are : 'direction' and 'speed'
+
+@app.route('/command/stop', methods=['GET'])
+def stop():
+    return jsonify(motor.commandStop())
 
 
+@app.route('/position', methods=['GET'])
+def getPositions():
+    return jsonify(brain.returnPositions()) ## return ra dec alt az in a dict
+
+
+@app.route('/informations', methods=['GET'])
+def getInfos():
+    return jsonify(software_informations)
 
 if __name__ == '__main__':
     app.run(debug=True)

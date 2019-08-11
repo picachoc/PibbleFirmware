@@ -1,7 +1,9 @@
 import MySQLdb
 
 class PibbleDatabase:
-    def __init__(self, paramMysql=None):
+    def __init__(self, brain, paramMysql=None):
+        self.brain = brain
+        
         if paramMysql:
             self.params = paramMysql
         else:
@@ -123,6 +125,20 @@ class PibbleDatabase:
                     for x in range(0,len(collNames)):
                         objs_dict.update({collNames[x] : obj[x]})
                 return objs_dict
+            except(Exception) as err:
+                print(err, flush=True)
+                return None
+        else:
+            return None
+
+
+    def getAlignInit(self):
+        if not self.conn_error:
+            try:
+                objs_dict = {}
+                self.cursor.execute("SELECT * FROM stars WHERE PROPER NOT NULL")
+                row = self.cursor.fetchall()
+            
             except(Exception) as err:
                 print(err, flush=True)
                 return None
