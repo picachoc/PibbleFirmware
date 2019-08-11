@@ -76,7 +76,10 @@ class PibbleDatabase:
                             sql_request += " WHERE "
 
                         if type(args[key]) == str:
-                            sql_request +=  "{} = '{}'".format(key, args[key])
+                            if key == "name":
+                                sql_request +=  "{} LIKE '{}%'".format(key, args[key])
+                            else:
+                                sql_request +=  "{} = '{}'".format(key, args[key])
                         else:
                             sql_request +=  "{} = {}".format(key, args[key])
                             
