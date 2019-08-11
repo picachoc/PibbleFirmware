@@ -40,10 +40,10 @@ class PibbleBrain:
         return datetime.utcnow() - self.times["delta_time"]
 
     def createCoords(self, obj, q=None):
-        obj.update({"astropy_coords" : SkyCoord("05 55 09 +07 24 28.3", unit=(u.hourangle, u.deg))})
+        obj.update({"astropy_coords" : SkyCoord(ra=obj["ra"], dec=obj["declination"], unit=(u.hourangle, u.deg))})
         if q:
             q.put(obj)
-        return None
+        return obj
 
     def getVisibles(self, obj_list):
         visible_list = []
@@ -60,14 +60,9 @@ class PibbleBrain:
         while nb != number:
             while not q.empty():
                 obj = q.get()
-                coords_list.append(getAltAz(obj["astropy_coords"], self.astropy_location, self.getTime()))
-                nb += 1
-                
-            while len(coords_list) != 0:
-                star = coords_list.pop(0)
-                if star["astropy_altaz"].alt.degree > 0:
-                    star.pop("astropy_altaz")
+                if getAltAz(obj["astropy_coords"], self.astropy_location, self.getTime()).alt.degree > 0:
                     star.pop("astropy_coords")
                     visible_list.append(star)
+                nb += 1
 
         return visible_list
