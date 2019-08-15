@@ -1,8 +1,16 @@
 import MySQLdb
 
+from functools import partial
+
+
+print = partial(print, flush=True)
+
+
 class PibbleDatabase:
     def __init__(self, brain, paramMysql=None):
         self.brain = brain
+        self.inited = False
+
         
         if paramMysql:
             self.params = paramMysql
@@ -14,29 +22,28 @@ class PibbleDatabase:
                 'db_name'     : 'pibble_catalog'
             }
 
-        self.conn_error = False
+        self.conn = None
+        self.cursor = None
             
-        try:
-            self.conn = MySQLdb.connect(host=self.params["db_host"], user=self.params["db_user"], passwd=self.params["db_password"], db=self.params["db_name"])
-            self.cursor = self.conn.cursor()
-        except(Exception) as err:
-            self.conn_error = True
-            print(err, flush=True)
 
-    """def getNames(self):
-        if not self.conn_error:
+    def init(self):
+        if not self.brain.inited:
+            self.inited = False
+            return False
+        else:   
             try:
-                self.cursor.execute("SELECT * FROM objects")
-                names = self.cursor.fetchall()
-                return names
+                self.conn = MySQLdb.connect(host=self.params["db_host"], user=self.params["db_user"], passwd=self.params["db_password"], db=self.params["db_name"])
+                self.cursor = self.conn.cursor()
+                self.inited = True
+                return True
             except(Exception) as err:
-                print(err, flush=True)
-                return None
-        else:
-            return None"""
+                print(err)
+                self.inited = False
+                return False
+                
 
     def getTypes(self):
-        if not self.conn_error:
+        if not self.inited:
             try:
                 self.cursor.execute("SELECT DISTINCT type FROM objects")
                 types = self.cursor.fetchall()
@@ -48,7 +55,7 @@ class PibbleDatabase:
             return None
         
     def getConstellations(self, table):
-        if not self.conn_error:
+        if not self.inited:
             try:
                 self.cursor.execute("SELECT DISTINCT constellation FROM {}".format(table))
                 constellations = self.cursor.fetchall()
@@ -60,12 +67,12 @@ class PibbleDatabase:
             return None
 
     def getAllFromTable(self, table=None, args=None):
-        if not self.conn_error:
+        if not self.inited:
             try:
                 visibility = args.pop("visible")
                 liste = []
                 
-                self.cursor.execute("SELECT * FROM {}".format(table))
+                ##self.cursor.execute("SELECT * FROM {}".format(table))
                 sql_request = "SELECT * FROM {}".format(table)
                 first = True
                 for key in args:
@@ -78,6 +85,8 @@ class PibbleDatabase:
                         if type(args[key]) == str:
                             if key == "name":
                                 sql_request +=  "{} LIKE '{}%'".format(key, args[key])
+                            elif key == "PROPER":
+                                sql_request +=  "{} {}".format(key, args[key])
                             else:
                                 sql_request +=  "{} = '{}'".format(key, args[key])
                         else:
@@ -95,6 +104,9 @@ class PibbleDatabase:
                     for x in range(0,len(collNames)):
                         liste[index].update({collNames[x] : obj[x]})
                     index += 1
+                
+                if visibility:
+                    liste = self.brain.getVisibles(liste)
                 return liste
             except(Exception) as err:
                 print(err, flush=True)
@@ -103,7 +115,7 @@ class PibbleDatabase:
             return None
 
     def getAllCollumns(self, table):
-        if not self.conn_error:
+        if not self.inited:
             try:
                 collNames = []
                 self.cursor.execute("SHOW COLUMNS FROM {}".format(table))
@@ -118,7 +130,7 @@ class PibbleDatabase:
             return None
 
     def getObjectByName(self, table=None, name=None):
-        if not self.conn_error:
+        if not self.inited:
             try:
                 objs_dict = {}
                 self.cursor.execute("SELECT * FROM objects WHERE NAME = '{}'".format(name))
@@ -136,12 +148,13 @@ class PibbleDatabase:
 
 
     def getAlignInit(self):
-        if not self.conn_error:
+        if not self.inited:
             try:
-                objs_dict = {}
-                self.cursor.execute("SELECT * FROM stars WHERE PROPER NOT NULL")
-                row = self.cursor.fetchall()
-            
+                objs_dict = self.getAllFromTable("stars", {"visibility" : True, "PROPER" : "NOT NULL"})
+                ##objs_dict = {}
+                ##self.cursor.execute("SELECT * FROM stars WHERE PROPER NOT NULL")
+                ##row = self.cursor.fetchall()
+                return objs_dict
             except(Exception) as err:
                 print(err, flush=True)
                 return None

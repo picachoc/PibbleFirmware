@@ -1,14 +1,12 @@
-import astropy.units as u
-from astropy.time import Time
-from astropy.coordinates import SkyCoord, EarthLocation, AltAz, ICRS
+from astropy.coordinates import AltAz
 
-from datetime import datetime
-import time
+from datetime import datetime, timedelta
 
-import numpy as np
 
-def utcFromGeoloc(longitude=0, latitude=0, local_time=0):
-    return None
-    
+## time is a datetime object, and offset is an int in hours
+def utcFromTimeZone(time, offset):
+    return time - timedelta(hours=offset)
+
+
 def getAltAz(astropy_coords, astropy_location, telescope_time):
     return astropy_coords.transform_to(AltAz(location=astropy_location, obstime=telescope_time))
