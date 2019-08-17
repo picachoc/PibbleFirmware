@@ -14,22 +14,22 @@ from utilities.configLoader import getConfig
 from utilities.astroMath import utcFromTimeZone
 
 
-print = partial(print, flush=True)
+print = partial(print, flush=True)  
 
 
 INFOS_PATH = os.getcwd() + "/informations.txt"
 CONF_PATH = os.getcwd() + "/config.txt"
 
-app = Flask(__name__)
+app = Flask(__name__)   ## Initializing Flask
 CORS(app)
 
+config = getConfig(CONF_PATH)                       ## Retrieving config from file.
+software_informations = getConfig(INFOS_PATH)       ## Retrieving informations from file.
+
+## Initializing all the Firmware services
 brain = PibbleBrain.PibbleBrain()
-motor = PibbleMotor.PibbleMotor()
-
-config = getConfig(CONF_PATH)
+motor = PibbleMotor.PibbleMotor(brain)
 database = PibbleDatabase.PibbleDatabase(brain, config)
-
-software_informations = getConfig(INFOS_PATH)
 
 HOMME_MESSAGE = """<div align='center'>
 <h1>Welcome to the PibbleFirmware RESTfull app!</h1>
@@ -43,6 +43,7 @@ Contributors : {}
 
 
 print("\nYou are running PibbleFirmware version {}\nMade by : {}\n".format(software_informations["version"], ", ".join(software_informations["contributors"])))
+
 
 @app.route('/setup/init', methods=['GET'])
 def setupInit():
@@ -78,7 +79,7 @@ def connexion():
     except(Exception) as err:
         print("An error occured :\n" + str(err))
         return jsonify({"inited" : False, "error" : str(err)})
-    
+
 
 @app.route('/catalog/<string:table>', methods=['GET'])
 def getAllFromTable(table):
@@ -130,7 +131,7 @@ def getPositions():
     return jsonify(brain.returnPositions()) ## return ra dec alt az in a dict
 
 
-@app.route('/informations', methods=['GET'])
+@app.route('/informations', methods=['GET'])    ## Returns the firmware informations
 def getInfos():
     return jsonify(software_informations)
 
@@ -138,5 +139,6 @@ def getInfos():
 def homme():
     return HOMME_MESSAGE
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)     ## Should be run with "debug=False" on the production server

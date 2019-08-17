@@ -70,14 +70,16 @@ class PibbleBrain:
             while nb < number:
                 while not q.empty():
                     obj = q.get()
-                    if getAltAz(obj["astropy_coords"], self.astropy_location, current_time).alt.degree > 0:
+                    angle = getAltAz(obj["astropy_coords"], self.astropy_location, current_time).alt.degree
+                    if  angle > 0 and angle < 180:
                         obj.pop("astropy_coords")
                         visible_list.append(obj)
                     nb += 1
             return visible_list
         except(Exception) as err:
             print(err)
-            return None
+            return {"error" : str(err)}
 
     def returnPositions(self):
         return self.telescope_position
+        

@@ -16,15 +16,15 @@ class PibbleDatabase:
             self.params = paramMysql
         else:
             self.params = {
-                'db_host'   : 'localhost',
-                'db_user'   : 'root',
+                'db_host' : 'localhost',
+                'db_user' : 'root',
                 'db_password' : 'test',
-                'db_name'     : 'pibble_catalog'
+                'db_name' : 'pibble_catalog'
             }
 
         self.conn = None
         self.cursor = None
-            
+
 
     def init(self):
         if not self.brain.inited:
@@ -39,7 +39,7 @@ class PibbleDatabase:
             except(Exception) as err:
                 print(err)
                 self.inited = False
-                return False
+                return {"error" : str(err)}
                 
 
     def getTypes(self):
@@ -49,10 +49,10 @@ class PibbleDatabase:
                 types = self.cursor.fetchall()
                 return types
             except(Exception) as err:
-                print(err, flush=True)
-                return None
+                print(err)
+                return {"error" : str(err)}
         else:
-            return None
+            return {"inited" : False}
         
     def getConstellations(self, table):
         if self.inited:
@@ -61,10 +61,10 @@ class PibbleDatabase:
                 constellations = self.cursor.fetchall()
                 return constellations
             except(Exception) as err:
-                print(err, flush=True)
-                return None
+                print(err)
+                return {"error" : str(err)}
         else:
-            return None
+            return {"inited" : False}
 
     def getAllFromTable(self, table=None, args=None):
         if self.inited:
@@ -113,7 +113,7 @@ class PibbleDatabase:
                 print(err)
                 return {"error" : str(err)}
         else:
-            return None
+            return {"inited" : False}
 
     def getAllCollumns(self, table):
         if self.inited:
@@ -128,7 +128,7 @@ class PibbleDatabase:
                 print(err)
                 return {"error" : str(err)}
         else:
-            return None
+            return {"inited" : False}
 
     def getObjectByName(self, table=None, name=None):
         if self.inited:
@@ -145,19 +145,16 @@ class PibbleDatabase:
                 print(err)
                 return {"error" : str(err)}
         else:
-            return None
+            return {"inited" : False}
 
 
     def getAlignInit(self):
         if self.inited:
             try:
                 objs_dict = self.getAllFromTable("stars", {"visible" : True, "proper" : "NOT NULL"})
-                ##objs_dict = {}
-                ##self.cursor.execute("SELECT * FROM stars WHERE PROPER NOT NULL")
-                ##row = self.cursor.fetchall()
                 return objs_dict
             except(Exception) as err:
                 print(err)
                 return {"error" : str(err)}
         else:
-            return None
+            return {"inited" : False}
