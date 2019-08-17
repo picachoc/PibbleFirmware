@@ -43,7 +43,7 @@ class PibbleDatabase:
                 
 
     def getTypes(self):
-        if not self.inited:
+        if self.inited:
             try:
                 self.cursor.execute("SELECT DISTINCT type FROM objects")
                 types = self.cursor.fetchall()
@@ -55,7 +55,7 @@ class PibbleDatabase:
             return None
         
     def getConstellations(self, table):
-        if not self.inited:
+        if self.inited:
             try:
                 self.cursor.execute("SELECT DISTINCT constellation FROM {}".format(table))
                 constellations = self.cursor.fetchall()
@@ -67,7 +67,7 @@ class PibbleDatabase:
             return None
 
     def getAllFromTable(self, table=None, args=None):
-        if not self.inited:
+        if self.inited:
             try:
                 visibility = args.pop("visible")
                 liste = []
@@ -85,14 +85,15 @@ class PibbleDatabase:
                         if type(args[key]) == str:
                             if key == "name":
                                 sql_request +=  "{} LIKE '{}%'".format(key, args[key])
-                            elif key == "PROPER":
-                                sql_request +=  "{} {}".format(key, args[key])
+                            elif key == "proper":
+                                sql_request +=  "{} IS {}".format(key, args[key])
                             else:
                                 sql_request +=  "{} = '{}'".format(key, args[key])
                         else:
                             sql_request +=  "{} = {}".format(key, args[key])
                             
                         first = False
+                print(sql_request)
 
                 self.cursor.execute(sql_request)
                         
@@ -104,18 +105,18 @@ class PibbleDatabase:
                     for x in range(0,len(collNames)):
                         liste[index].update({collNames[x] : obj[x]})
                     index += 1
-                
+
                 if visibility:
                     liste = self.brain.getVisibles(liste)
                 return liste
             except(Exception) as err:
-                print(err, flush=True)
-                return None
+                print(err)
+                return {"error" : str(err)}
         else:
             return None
 
     def getAllCollumns(self, table):
-        if not self.inited:
+        if self.inited:
             try:
                 collNames = []
                 self.cursor.execute("SHOW COLUMNS FROM {}".format(table))
@@ -124,13 +125,13 @@ class PibbleDatabase:
                     collNames.append(collumn[0])
                 return collNames
             except(Exception) as err:
-                print(err, flush=True)
-                return None
+                print(err)
+                return {"error" : str(err)}
         else:
             return None
 
     def getObjectByName(self, table=None, name=None):
-        if not self.inited:
+        if self.inited:
             try:
                 objs_dict = {}
                 self.cursor.execute("SELECT * FROM objects WHERE NAME = '{}'".format(name))
@@ -141,22 +142,22 @@ class PibbleDatabase:
                         objs_dict.update({collNames[x] : obj[x]})
                 return objs_dict
             except(Exception) as err:
-                print(err, flush=True)
-                return None
+                print(err)
+                return {"error" : str(err)}
         else:
             return None
 
 
     def getAlignInit(self):
-        if not self.inited:
+        if self.inited:
             try:
-                objs_dict = self.getAllFromTable("stars", {"visibility" : True, "PROPER" : "NOT NULL"})
+                objs_dict = self.getAllFromTable("stars", {"visible" : True, "proper" : "NOT NULL"})
                 ##objs_dict = {}
                 ##self.cursor.execute("SELECT * FROM stars WHERE PROPER NOT NULL")
                 ##row = self.cursor.fetchall()
                 return objs_dict
             except(Exception) as err:
-                print(err, flush=True)
-                return None
+                print(err)
+                return {"error" : str(err)}
         else:
             return None

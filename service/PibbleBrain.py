@@ -37,40 +37,47 @@ class PibbleBrain:
             self.inited = True
         except(Exception) as err:
             self.inited = False
-            print(err, flush=True)
-            return None
+            print(err)
+            return {"error" : str(err)}
 
     def getTime(self):
         return datetime.utcnow() - self.times["delta_time"] ##returns the utc time synced with the phone, that way, it is right even if the pi hasn't the good one.
 
     def createCoords(self, obj, q=None):
-        obj.update({"astropy_coords" : SkyCoord(ra=obj["ra"], dec=obj["declination"], unit=(u.hourangle, u.deg))})
-        if q:
-            q.put(obj)
-        return obj
+        try:
+            obj.update({"astropy_coords" : SkyCoord(ra=obj["ra"], dec=obj["declination"], unit=(u.hourangle, u.deg))})
+            if q:
+                q.put(obj)
+            return obj
+        except(Exception) as err:
+            print(err)
+            return None
 
     def getVisibles(self, obj_list):
-        star = obj_list.copy() ## prevent obj_list from being modified
-        visible_list = []
-        threads = []
-        q = Queue()
-        current_time = self.getTime()
-        
-        number = len(star)
-        for x in range(0, number):
-            threads[x].append(threading.Thread(target=createCoords, args=(self, star[x], q), daemon=True))
-            threads[x].start()
+        try:
+            star = obj_list.copy() ## prevent obj_list from being modified
+            visible_list = []
+            threads = []
+            q = Queue()
+            current_time = self.getTime()
+            
+            number = len(star)
+            for x in range(0, number):
+                threads.append(threading.Thread(target=self.createCoords, args=(star[x], q), daemon=True))
+                threads[x].start()
 
-        nb = 0
-        while nb != number:
-            while not q.empty():
-                obj = q.get()
-                if getAltAz(obj["astropy_coords"], self.astropy_location, current_time).alt.degree > 0:
-                    star.pop("astropy_coords")
-                    visible_list.append(star)
-                nb += 1
-
-        return visible_list
+            nb = 0
+            while nb < number:
+                while not q.empty():
+                    obj = q.get()
+                    if getAltAz(obj["astropy_coords"], self.astropy_location, current_time).alt.degree > 0:
+                        obj.pop("astropy_coords")
+                        visible_list.append(obj)
+                    nb += 1
+            return visible_list
+        except(Exception) as err:
+            print(err)
+            return None
 
     def returnPositions(self):
         return self.telescope_position
