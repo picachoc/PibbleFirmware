@@ -125,6 +125,10 @@ def move():
 def stop():
     return jsonify(motor.commandStop())
 
+@app.route('/command/abort', methods=['GET'])
+def abort():
+    return jsonify(motor.commandAbort())
+
 
 @app.route('/position', methods=['GET'])
 def getPositions():

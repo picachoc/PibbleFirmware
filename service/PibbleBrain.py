@@ -22,8 +22,10 @@ print = partial(print, flush=True)
 
 class PibbleBrain:
     def __init__(self):
+        self.MAX_THREAD_COUNT = 100
+
         self.inited = False
-        
+
         self.telescope_coords = {"longitude" : -0.000500, "latitude" : 51.476852}
         self.times = {"telescope_start_time" : datetime.utcnow(), "system_start_time" : datetime.utcnow(), "delta_time" : 0}        ## All times are utc
         self.telescope_position = {"alt" : 0, "az" : 0, "ra" : 0, "dec" : 0}
@@ -43,11 +45,13 @@ class PibbleBrain:
     def getTime(self):
         return datetime.utcnow() - self.times["delta_time"] ##returns the utc time synced with the phone, that way, it is right even if the pi hasn't the good one.
 
-    def createCoords(self, obj, q=None):
+    def createCoords(self, obj, q=None, semaphore=None):
         try:
             obj.update({"astropy_coords" : SkyCoord(ra=obj["ra"], dec=obj["declination"], unit=(u.hourangle, u.deg))})
             if q:
                 q.put(obj)
+            if semaphore:
+                semaphore.release()
             return obj
         except(Exception) as err:
             print(err)
@@ -60,11 +64,22 @@ class PibbleBrain:
             threads = []
             q = Queue()
             current_time = self.getTime()
-            
+
+            sema = threading.Semaphore(self.MAX_THREAD_COUNT)       ## Prevents from running more than self.MAX_THREAD_COUNT threads at once.
+
             number = len(star)
             for x in range(0, number):
-                threads.append(threading.Thread(target=self.createCoords, args=(star[x], q), daemon=True))
-                threads[x].start()
+                """while len(threads) >= 100:
+                    size = len(threads)
+                    for x in range(0, size):
+                        if not threads[x].is_alive:
+                            threads.pop(x)
+                            x = 0
+                            size = len(threads)"""
+
+                sema.acquire()      ## Blocks while more than 100 threads are running at once.
+                threads.append(threading.Thread(target=self.createCoords, args=(star[x], q, sema), daemon=True))
+                threads[len(threads)-1].start()
 
             nb = 0
             while nb < number:
