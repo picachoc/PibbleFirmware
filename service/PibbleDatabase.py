@@ -83,10 +83,10 @@ class PibbleDatabase:
                             sql_request += " WHERE "
 
                         if type(args[key]) == str:
-                            if key == "name":
-                                sql_request +=  "{} LIKE '{}%'".format(key, args[key])
-                            elif key == "proper":
+                            if key == "name" and args[key] == "NOT NULL":
                                 sql_request +=  "{} IS {}".format(key, args[key])
+                            elif key == "name":
+                                sql_request +=  "{} LIKE '{}%'".format(key, args[key])
                             else:
                                 sql_request +=  "{} = '{}'".format(key, args[key])
                         else:
@@ -151,7 +151,7 @@ class PibbleDatabase:
     def getAlignInit(self):
         if self.inited:
             try:
-                objs_dict = self.getAllFromTable("stars", {"visible" : True, "proper" : "NOT NULL"})
+                objs_dict = self.getAllFromTable("stars", {"visible" : True, "name" : "NOT NULL"})
                 return objs_dict
             except(Exception) as err:
                 print(err)
