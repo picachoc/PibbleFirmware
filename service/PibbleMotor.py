@@ -58,7 +58,7 @@ class PibbleMotor:
         while self.running:
             self.movement_lock.acquire()
             if not self.instructions.empty() and self.moving:
-                step_alt, step_az, speed = self.instruction.get()       ## Each instruction is a tuple like this : (alt, az, speed) where "alt" and "az" are integers between -1 and 1 and speed a float
+                step_alt, step_az, speed = self.instructions.get()       ## Each instruction is a tuple like this : (alt, az, speed) where "alt" and "az" are integers between -1 and 1 and speed a float
                 if step_alt < 0:
                     print("Step Alt down")
                 elif step_alt > 0:
