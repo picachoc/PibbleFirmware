@@ -13,5 +13,6 @@ def getConfig(path):
                     val = int(val)
                 if ',' in val:
                     val = val.split(',')
+                val.replace("'", "")
                 confs.update({key : val})
     return confs

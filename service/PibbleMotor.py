@@ -23,6 +23,8 @@ class PibbleMotor:
         self.running = False
         self.moving = False
 
+        self.mode = 0           ## 0 for manual movement, 1 for tracking
+
         self.speed = 0
 
         self.step_count = {"alt" : 0, "az" : 0}         ## Step_count is counted with the smallest step possible, meaning that 1 step with micro_step = 1 will count as MAX_MICRO_STEP in step_count
@@ -56,7 +58,7 @@ class PibbleMotor:
         while self.running:
             self.movement_lock.acquire()
             if not self.instructions.empty() and self.moving:
-                step_alt, step_az, speed = self.instructions.get()       ## Each instruction is a tuple like this : (alt, az, speed) where "alt" and "az" are integers between -1 and 1 and speed a float
+                step_alt, step_az, speed = self.instruction.get()       ## Each instruction is a tuple like this : (alt, az, speed) where "alt" and "az" are integers between -1 and 1 and speed a float
                 if step_alt < 0:
                     print("Step Alt down")
                 elif step_alt > 0:
@@ -75,6 +77,8 @@ class PibbleMotor:
 
 
     def commandMove(self, args):
+        if self.inited:
+            print(args)
         return None
 
     def commandStop(self):

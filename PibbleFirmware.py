@@ -9,6 +9,7 @@ from datetime import datetime
 from service import PibbleDatabase
 from service import PibbleBrain
 from service import PibbleMotor
+from service import PibbleJoystick
 
 from utilities.configLoader import getConfig
 from utilities.astroMath import utcFromTimeZone
@@ -30,6 +31,7 @@ software_informations = getConfig(INFOS_PATH)       ## Retrieving informations f
 brain = PibbleBrain.PibbleBrain()
 motor = PibbleMotor.PibbleMotor(brain)
 database = PibbleDatabase.PibbleDatabase(brain, config)
+joystick = PibbleJoystick.PibbleJoystick(brain, config)
 
 HOMME_MESSAGE = """<div align='center'>
 <h1>Welcome to the PibbleFirmware RESTfull app!</h1>
@@ -75,7 +77,8 @@ def connexion():
         brain.times["delta_time"] = brain.times["telescope_start_time"] - brain.times["system_start_time"]
         brain.init()
         database.init()
-        return jsonify({"inited" : brain.inited and database.inited})
+        joystick.init()
+        return jsonify({"inited" : brain.inited and database.inited and joystick.inited})
     except(Exception) as err:
         print("An error occured :\n" + str(err))
         return jsonify({"inited" : False, "error" : str(err)})
