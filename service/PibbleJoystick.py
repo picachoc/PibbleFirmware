@@ -45,6 +45,7 @@ class PibbleJoystick:
 
                 self.running = True
                 self.manager_thread = threading.Thread(target=self.connectionManager, daemon=True)
+                self.manager_thread.start()
                 return True
             except(Exception) as err:
                 print(err)
@@ -61,7 +62,11 @@ class PibbleJoystick:
                         self.connection_lock.acquire()
                         self.connection_socket = conn
                         self.connection_infos = {"ip" : addr[0], "port" : addr[1]}
+                        self.connection_thread = threading.Thread(target=self.listener, daemon=True)
+                        self.connection_thread.start()
                         self.connection_lock.release()
+                    else:
+                        conn.close()
             except(Exception) as err:
                 print(err)
                 return {"error" : str(err)}
