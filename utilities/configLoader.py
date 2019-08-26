@@ -11,8 +11,8 @@ def getConfig(path):
                 key, val = element.split("=")
                 if val.isdigit():
                     val = int(val)
+                val.replace("'", "")
                 if ',' in val:
                     val = val.split(',')
-                val.replace("'", "")
                 confs.update({key : val})
     return confs
