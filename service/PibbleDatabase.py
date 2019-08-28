@@ -122,7 +122,7 @@ class PibbleDatabase:
                 self.cursor.execute("SHOW COLUMNS FROM {}".format(table))
                 coll = self.cursor.fetchall()
                 for collumn in coll:
-                    collNames.append(collumn[0])
+                    collNames.append(collumn[0].lower())
                 return collNames
             except(Exception) as err:
                 print(err)
