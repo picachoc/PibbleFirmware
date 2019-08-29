@@ -1,7 +1,9 @@
 import os
+import json
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_socketio import SocketIO
 
 from functools import partial
 from datetime import datetime
@@ -23,6 +25,7 @@ CONF_PATH = os.getcwd() + "/config.txt"
 
 app = Flask(__name__)   ## Initializing Flask
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 config = getConfig(CONF_PATH)                       ## Retrieving config from file.
 software_informations = getConfig(INFOS_PATH)       ## Retrieving informations from file.
@@ -31,7 +34,7 @@ software_informations = getConfig(INFOS_PATH)       ## Retrieving informations f
 brain = PibbleBrain.PibbleBrain()
 motor = PibbleMotor.PibbleMotor(brain)
 database = PibbleDatabase.PibbleDatabase(brain, config)
-joystick = PibbleJoystick.PibbleJoystick(brain, config)
+joystick = PibbleJoystick.PibbleJoystick(brain)
 
 HOMME_MESSAGE = """<div align='center'>
 <h1>Welcome to the PibbleFirmware RESTfull app!</h1>
@@ -152,5 +155,23 @@ def homme():
     return HOMME_MESSAGE
 
 
+
+@socketio.on("connect")
+def onConnect():
+    joystick.connect()
+
+@socketio.on("disconnect")
+def onDisconnect():
+    joystick.disconnect()
+
+@socketio.on("message")
+def onMessage(message):
+    joystick.message(message)
+
+@socketio.on("json")
+def onJson(data):
+    joystick.json(json.loads(data))
+
 if __name__ == '__main__':
-    app.run(debug=True)     ## Should be run with "debug=False" on the production server
+    socketio.run(app, debug=True)   ## Should be run with "debug=False" on the production server
+    ##app.run(debug=True)     ## Should be run with "debug=False" on the production server

@@ -4,3 +4,4 @@ flask-cors==3.0.8
 mysqlclient==1.4.2
 astropy==3.2.1
 jplephem==2.9
+flask-socketio==4.2.1
