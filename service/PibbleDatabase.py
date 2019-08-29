@@ -89,6 +89,8 @@ class PibbleDatabase:
                                 sql_request +=  "{} LIKE '{}%'".format(key, args[key])
                             else:
                                 sql_request +=  "{} = '{}'".format(key, args[key])
+                        elif key == "magnitude":
+                            sql_request +=  "{} < {}".format(key, args[key])
                         else:
                             sql_request +=  "{} = {}".format(key, args[key])
                             
