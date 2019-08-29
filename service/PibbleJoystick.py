@@ -44,6 +44,7 @@ class PibbleJoystick:
                 self.listenning_socket.listen(1)
 
                 self.running = True
+                self.inited = True
                 self.manager_thread = threading.Thread(target=self.connectionManager, daemon=True)
                 self.manager_thread.start()
                 return True
@@ -79,10 +80,14 @@ class PibbleJoystick:
                 while self.running:
                     if self.connection_socket != None:
                         try:
-                            msg = self.connection_socket.recv().decode('utf-8')
-                            print(msg)
+                            self.connection_lock.acquire()
+                            msg = self.connection_socket.recv(256).decode('utf-8')
+                            self.connection_socket.send(("Server : " + msg).encode('utf-8'))
+                            print("Joystick socket : " + msg)
                         except(ConnectionError) as err:
                             self.closeConnection()
+                        finally:
+                            self.connection_lock.release()
             except(Exception) as err:
                 print(err)
                 return {"error" : str(err)}
