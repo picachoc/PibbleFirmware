@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import astropy.units as u
 from astropy.time import Time
-from astropy.coordinates import SkyCoord, EarthLocation
+from astropy.coordinates import SkyCoord, EarthLocation, solar_system_ephemeris
 
 from functools import partial
 from datetime import datetime
@@ -32,6 +32,8 @@ class PibbleBrain:
 
         self.astropy_location = None
         self.astropy_coords = {}
+
+        solar_system_ephemeris.set("de430")
 
     def init(self):
         try:
@@ -91,6 +93,15 @@ class PibbleBrain:
                         visible_list.append(obj)
                     nb += 1
             return visible_list
+        except(Exception) as err:
+            print(err)
+            return {"error" : str(err)}
+
+    def getAllEphemerides(self):
+        try:
+            ephemerides = solar_system_ephemeris.bodies
+            
+            return ephemerides
         except(Exception) as err:
             print(err)
             return {"error" : str(err)}

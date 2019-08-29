@@ -84,6 +84,11 @@ def connexion():
         return jsonify({"inited" : False, "error" : str(err)})
 
 
+@app.route('/catalog/ephemerides', methods=['GET'])
+def getAllEphemerides():
+    return jsonify(brain.getAllEphemerides())
+
+
 @app.route('/catalog/<string:table>', methods=['GET'])
 def getAllFromTable(table):
     args = {}
