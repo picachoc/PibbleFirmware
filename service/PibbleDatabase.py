@@ -100,12 +100,12 @@ class PibbleDatabase:
                 self.cursor.execute(sql_request)
                         
                 row = self.cursor.fetchall()
-                collNames = self.getAllCollumns(table)
+                colNames = self.getAllcolumns(table)
                 index = 0
                 for obj in row:
                     liste.append({})
-                    for x in range(0,len(collNames)):
-                        liste[index].update({collNames[x] : obj[x]})
+                    for x in range(0,len(colNames)):
+                        liste[index].update({colNames[x] : obj[x]})
                     index += 1
 
                 if visibility:
@@ -117,15 +117,15 @@ class PibbleDatabase:
         else:
             return {"inited" : False}
 
-    def getAllCollumns(self, table):
+    def getAllcolumns(self, table):
         if self.inited:
             try:
-                collNames = []
+                colNames = []
                 self.cursor.execute("SHOW COLUMNS FROM {}".format(table))
-                coll = self.cursor.fetchall()
-                for collumn in coll:
-                    collNames.append(collumn[0].lower())
-                return collNames
+                col = self.cursor.fetchall()
+                for column in col:
+                    colNames.append(column[0].lower())
+                return colNames
             except(Exception) as err:
                 print(err)
                 return {"error" : str(err)}
@@ -138,10 +138,10 @@ class PibbleDatabase:
                 objs_dict = {}
                 self.cursor.execute("SELECT * FROM objects WHERE NAME = '{}'".format(name))
                 row = self.cursor.fetchall()
-                collNames = self.getAllCollumns(table)
+                colNames = self.getAllcolumns(table)
                 for obj in row:
-                    for x in range(0,len(collNames)):
-                        objs_dict.update({collNames[x] : obj[x]})
+                    for x in range(0,len(colNames)):
+                        objs_dict.update({colNames[x] : obj[x]})
                 return objs_dict
             except(Exception) as err:
                 print(err)
