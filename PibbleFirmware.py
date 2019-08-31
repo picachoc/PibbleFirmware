@@ -155,22 +155,9 @@ def homme():
     return HOMME_MESSAGE
 
 
-
-@socketio.on("connect")
-def onConnect():
-    joystick.connect()
-
-@socketio.on("disconnect")
-def onDisconnect():
-    joystick.disconnect()
-
-@socketio.on("message")
-def onMessage(message):
-    joystick.message(message)
-
-@socketio.on("json")
+@socketio.on("joystickdata")
 def onJson(data):
-    joystick.json(json.loads(data))
+    joystick.json(data)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)   ## Should be run with "debug=False" on the production server

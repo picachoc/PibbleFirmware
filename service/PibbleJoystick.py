@@ -21,14 +21,6 @@ class PibbleJoystick():
                 self.inited = False
                 return {"error" : str(err)}
 
-    def connect(self):
-        print("Connected to the joystick server.")
-
-    def disconnect(self):
-        print("Disconnected to the joystick server.")
 
     def json(self, data):
         print(data)
-
-    def message(self, message):
-        print(message)
