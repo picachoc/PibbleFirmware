@@ -77,24 +77,25 @@ class PibbleDatabase:
                 first = True
                 for key in args:
                     if not args[key] == None:
-                        if first == False:
-                            sql_request += " AND "
-                        else:
-                            sql_request += " WHERE "
-
-                        if not args[key].isdigit():
-                            if key == "name" and args[key] == "NOT NULL":
-                                sql_request +=  "{} IS {}".format(key, args[key])
-                            elif key == "name":
-                                sql_request +=  "{} LIKE '{}%'".format(key, args[key])
+                        if not args[key] == "":
+                            if first == False:
+                                sql_request += " AND "
                             else:
-                                sql_request +=  "{} = '{}'".format(key, args[key])
-                        elif key == "magnitude":
-                            sql_request +=  "{} < {}".format(key, args[key])
-                        else:
-                            sql_request +=  "{} = {}".format(key, args[key])
-                            
-                        first = False
+                                sql_request += " WHERE "
+
+                            if not args[key].isdigit():
+                                if key == "name" and args[key] == "NOT NULL":
+                                    sql_request +=  "{} IS {}".format(key, args[key])
+                                elif key == "name":
+                                    sql_request +=  "{} LIKE '{}%'".format(key, args[key])
+                                else:
+                                    sql_request +=  "{} = '{}'".format(key, args[key])
+                            elif key == "magnitude":
+                                sql_request +=  "{} < {}".format(key, args[key])
+                            else:
+                                sql_request +=  "{} = {}".format(key, args[key])
+                                
+                            first = False
                 print(sql_request)
 
                 self.cursor.execute(sql_request)
