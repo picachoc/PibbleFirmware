@@ -82,7 +82,7 @@ class PibbleDatabase:
                         else:
                             sql_request += " WHERE "
 
-                        if type(args[key]) == str:
+                        if not args[key].isdigit():
                             if key == "name" and args[key] == "NOT NULL":
                                 sql_request +=  "{} IS {}".format(key, args[key])
                             elif key == "name":
