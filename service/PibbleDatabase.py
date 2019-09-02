@@ -76,8 +76,7 @@ class PibbleDatabase:
                 sql_request = "SELECT * FROM {}".format(table)
                 first = True
                 for key in args:
-                    if not args[key] == None:
-                        if not args[key] == "":
+                    if not (args[key] == None or args[key] == ""):
                             if first == False:
                                 sql_request += " AND "
                             else:
@@ -96,7 +95,7 @@ class PibbleDatabase:
                                 sql_request +=  "{} = {}".format(key, args[key])
                                 
                             first = False
-                print(sql_request)
+                print("SQL request : " + sql_request)
 
                 self.cursor.execute(sql_request)
                         
@@ -109,7 +108,7 @@ class PibbleDatabase:
                         liste[index].update({colNames[x] : obj[x]})
                     index += 1
 
-                if visibility:
+                if visibility == "true":
                     liste = self.brain.getVisibles(liste)
                 return liste
             except(Exception) as err:
