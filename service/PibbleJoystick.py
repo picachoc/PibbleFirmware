@@ -31,3 +31,5 @@ class PibbleJoystick():
             force_y = data["force"] * math.sin(data["angle"]*math.pi/180.0)
 
             self.motor.commandMove(force_x, force_y)
+        elif data["phase"] == "stop":
+            self.motor.commandStop()
