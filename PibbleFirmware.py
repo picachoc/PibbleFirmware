@@ -33,7 +33,7 @@ software_informations = getConfig(INFOS_PATH)       ## Retrieving informations f
 brain = PibbleBrain.PibbleBrain()
 motor = PibbleMotor.PibbleMotor(brain)
 database = PibbleDatabase.PibbleDatabase(brain, config)
-joystick = PibbleJoystick.PibbleJoystick(brain)
+joystick = PibbleJoystick.PibbleJoystick(brain, motor)
 
 HOMME_MESSAGE = """<div align='center'>
 <h1>Welcome to the PibbleFirmware RESTfull app!</h1>
@@ -79,8 +79,9 @@ def connexion():
         brain.times["delta_time"] = brain.times["telescope_start_time"] - brain.times["system_start_time"]
         brain.init()
         database.init()
+        motor.init()
         joystick.init()
-        return jsonify({"inited" : brain.inited and database.inited and joystick.inited})
+        return jsonify({"inited" : brain.inited and database.inited and motor.inited and joystick.inited})
     except(Exception) as err:
         print("An error occured :\n" + str(err))
         return jsonify({"inited" : False, "error" : str(err)})
@@ -124,6 +125,7 @@ def getTrack():
     print("track")
     return jsonify(None)
 
+"""
 @app.route('/command/move', methods=['GET'])
 def move():
     args = {}
@@ -134,6 +136,7 @@ def move():
 @app.route('/command/stop', methods=['GET'])
 def stop():
     return jsonify(motor.commandStop())
+"""
 
 @app.route('/command/abort', methods=['GET'])
 def abort():
