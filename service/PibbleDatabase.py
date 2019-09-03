@@ -19,7 +19,8 @@ class PibbleDatabase:
                 'db_host' : 'localhost',
                 'db_user' : 'root',
                 'db_password' : 'test',
-                'db_name' : 'pibble_catalog'
+                'db_name' : 'pibble_catalog',
+                'db_max_items_retrieved' : 500
             }
 
         self.conn = None
@@ -95,6 +96,7 @@ class PibbleDatabase:
                                 sql_request +=  "{} = {}".format(key, args[key])
                                 
                             first = False
+                sql_request += " LIMIT {}".format(self.params["db_max_items_retrieved"])
                 print("SQL request : " + sql_request)
 
                 self.cursor.execute(sql_request)
