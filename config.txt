@@ -2,5 +2,4 @@ db_host = localhost
 db_user = root
 db_password = test
 db_name = pibble_catalog
-joystick_host = 'localhost'
-joystick_port = 42666
+db_max_items_retrieved = 500

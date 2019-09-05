@@ -19,7 +19,8 @@ class PibbleDatabase:
                 'db_host' : 'localhost',
                 'db_user' : 'root',
                 'db_password' : 'test',
-                'db_name' : 'pibble_catalog'
+                'db_name' : 'pibble_catalog',
+                'db_max_items_retrieved' : 500
             }
 
         self.conn = None
@@ -76,26 +77,27 @@ class PibbleDatabase:
                 sql_request = "SELECT * FROM {}".format(table)
                 first = True
                 for key in args:
-                    if not args[key] == None:
-                        if first == False:
-                            sql_request += " AND "
-                        else:
-                            sql_request += " WHERE "
-
-                        if type(args[key]) == str:
-                            if key == "name" and args[key] == "NOT NULL":
-                                sql_request +=  "{} IS {}".format(key, args[key])
-                            elif key == "name":
-                                sql_request +=  "{} LIKE '{}%'".format(key, args[key])
+                    if not (args[key] == None or args[key] == ""):
+                            if first == False:
+                                sql_request += " AND "
                             else:
-                                sql_request +=  "{} = '{}'".format(key, args[key])
-                        elif key == "magnitude":
-                            sql_request +=  "{} < {}".format(key, args[key])
-                        else:
-                            sql_request +=  "{} = {}".format(key, args[key])
-                            
-                        first = False
-                print(sql_request)
+                                sql_request += " WHERE "
+
+                            if not args[key].isdigit():
+                                if key == "name" and args[key] == "NOT NULL":
+                                    sql_request +=  "{} IS {}".format(key, args[key])
+                                elif key == "name":
+                                    sql_request +=  "{} LIKE '{}%'".format(key, args[key])
+                                else:
+                                    sql_request +=  "{} = '{}'".format(key, args[key])
+                            elif key == "magnitude":
+                                sql_request +=  "{} < {}".format(key, args[key])
+                            else:
+                                sql_request +=  "{} = {}".format(key, args[key])
+                                
+                            first = False
+                sql_request += " LIMIT {}".format(self.params["db_max_items_retrieved"])
+                print("SQL request : " + sql_request)
 
                 self.cursor.execute(sql_request)
                         
@@ -108,7 +110,7 @@ class PibbleDatabase:
                         liste[index].update({colNames[x] : obj[x]})
                     index += 1
 
-                if visibility:
+                if visibility == "true":
                     liste = self.brain.getVisibles(liste)
                 return liste
             except(Exception) as err:

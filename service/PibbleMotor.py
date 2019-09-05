@@ -76,10 +76,10 @@ class PibbleMotor:
         return None
 
 
-    def commandMove(self, args):
+    def commandMove(self, force_az, force_alt):
         if self.inited:
-            print(args)
-        return None
+            print(force_az)
+            print(force_alt)
 
     def commandStop(self):
         return None
