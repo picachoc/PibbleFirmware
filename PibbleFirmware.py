@@ -13,7 +13,6 @@ from service import PibbleMotor
 from service import PibbleJoystick
 
 from utilities.configLoader import getConfig
-from utilities.astroMath import utcFromTimeZone
 
 
 print = partial(print, flush=True)  
@@ -23,8 +22,8 @@ INFOS_PATH = os.getcwd() + "/informations.txt"
 CONF_PATH = os.getcwd() + "/config.txt"
 
 app = Flask(__name__)   ## Initializing Flask
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app)               ## Initializing Flask CORS for cross origin requests
+socketio = SocketIO(app, cors_allowed_origins="*")      ## Initializing Flask socketio for the joystick connection
 
 config = getConfig(CONF_PATH)                       ## Retrieving config from file.
 software_informations = getConfig(INFOS_PATH)       ## Retrieving informations from file.
@@ -72,15 +71,12 @@ def connexion():
         args = {}
         for key in request.args.keys():
             args.update({key : request.args.get(key)})
-        brain.telescope_coords["latitude"] = float(args["latitude"])
-        brain.telescope_coords["longitude"] = float(args["longitude"])
-        brain.times["telescope_start_time"] = utcFromTimeZone(datetime.fromtimestamp(float(args["timestamp"])/1000.0), int(args["offset"]))
-        brain.times["system_start_time"] = datetime.utcnow()
-        brain.times["delta_time"] = brain.times["telescope_start_time"] - brain.times["system_start_time"]
-        brain.init()
+
+        brain.init(args)
         database.init()
         motor.init()
         joystick.init()
+
         return jsonify({"inited" : brain.inited and database.inited and motor.inited and joystick.inited})
     except(Exception) as err:
         print("An error occured :\n" + str(err))
@@ -107,8 +103,10 @@ def getObjectByName(table, name=None):
 
 @app.route('/catalog', methods=['POST'])
 def addUserObject():
-    
-    return jsonify(None)
+    args = {}
+    for key in request.args.keys():
+        args.update({key : request.args.get(key)})
+    return jsonify(database.addUserObject(args))
 
 
 @app.route('/objects/types', methods=['GET'])
@@ -125,18 +123,6 @@ def getTrack():
     print("track")
     return jsonify(None)
 
-"""
-@app.route('/command/move', methods=['GET'])
-def move():
-    args = {}
-    for key in request.args.keys():
-        args.update({key : request.args.get(key)})
-    return jsonify(motor.commandMove(args)) ## keys are : 'direction' and 'speed'
-
-@app.route('/command/stop', methods=['GET'])
-def stop():
-    return jsonify(motor.commandStop())
-"""
 
 @app.route('/command/abort', methods=['GET'])
 def abort():
@@ -152,7 +138,7 @@ def getPositions():
 def getInfos():
     return jsonify(software_informations)
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])    ## Returns the home page
 def homme():
     return HOMME_MESSAGE
 
@@ -163,4 +149,3 @@ def onJson(data):
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)   ## Should be run with "debug=False" on the production server
-    ##app.run(debug=True)     ## Should be run with "debug=False" on the production server

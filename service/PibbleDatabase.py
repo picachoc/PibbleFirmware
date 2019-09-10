@@ -84,8 +84,8 @@ class PibbleDatabase:
                                 sql_request += " WHERE "
 
                             if not args[key].isdigit():
-                                if key == "name" and args[key] == "NOT NULL":
-                                    sql_request +=  "{} IS {}".format(key, args[key])
+                                if key == "name" and args[key] == "NOT NULL":               ## a
+                                    sql_request +=  "{} IS {}".format(key, args[key])       ## enlever
                                 elif key == "name":
                                     sql_request +=  "{} LIKE '{}%'".format(key, args[key])
                                 else:
@@ -157,6 +157,37 @@ class PibbleDatabase:
             try:
                 objs_dict = self.getAllFromTable("stars", {"visible" : True, "name" : "NOT NULL"})
                 return objs_dict
+            except(Exception) as err:
+                print(err)
+                return {"error" : str(err)}
+        else:
+            return {"inited" : False}
+
+    def addUserObject(self, args):
+        if self.inited:
+            try:
+                sql_request = "INSERT INTO user_objects "
+                column_str = "("
+                values_str = "("
+                first = True
+                
+                for key in args:
+                    if first != True:
+                        column_str += ", "
+                        values_str += ", "
+
+                    column_str += str(key)
+                    values_str += str(args[key])
+                    first = False
+                
+                column_str += ")"
+                values_str += ")"
+
+                sql_request += column_str + " VALUES " + values_str
+                print(sql_request)
+
+                self.cursor.execute(sql_request)
+                return {"success" : True}
             except(Exception) as err:
                 print(err)
                 return {"error" : str(err)}

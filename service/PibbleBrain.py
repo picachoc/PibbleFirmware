@@ -15,6 +15,7 @@ import threading
 from multiprocessing import Queue
 
 from utilities.astroMath import getAltAz
+from utilities.astroMath import utcFromTimeZone
 
 
 print = partial(print, flush=True)
@@ -35,8 +36,15 @@ class PibbleBrain:
 
         solar_system_ephemeris.set("de430")
 
-    def init(self):
+    def init(self, args):
         try:
+            self.telescope_coords["latitude"] = float(args["latitude"])
+            self.telescope_coords["longitude"] = float(args["longitude"])
+
+            self.times["telescope_start_time"] = utcFromTimeZone(datetime.fromtimestamp(float(args["timestamp"])/1000.0), int(args["offset"]))
+            self.times["system_start_time"] = datetime.utcnow()
+            self.times["delta_time"] = self.times["telescope_start_time"] - self.times["system_start_time"]
+
             self.astropy_location = EarthLocation(lat=np.array(self.telescope_coords["latitude"])*u.deg,lon=np.array(self.telescope_coords["longitude"])*u.deg)
             self.inited = True
         except(Exception) as err:
