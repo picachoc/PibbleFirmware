@@ -169,6 +169,7 @@ class PibbleDatabase:
                 sql_request = "INSERT INTO user_objects "
                 column_str = "("
                 values_str = "("
+                first = True
 
                 id_request = "SELECT count(id) FROM user_objects"
                 id = int(self.cursor.execute(id_request)) + 1
@@ -176,14 +177,22 @@ class PibbleDatabase:
                 values_str += str(id) + ", "
                 
                 for key in args:
-                    column_str += ", "
-                    values_str += ", "
+                    if first == False:
+                        column_str += ", "
+                        values_str += ", "
+                    
+                    args[key] = args[key].replace("'", "")
 
                     column_str += str(key)
-                    values_str += str(args[key])
+                    if args[key].isdigit():
+                        values_str += str(args[key])
+                    else:
+                        values_str += "'" + str(args[key]) + "'"
                 
                 column_str += ")"
                 values_str += ")"
+
+                first = False
 
                 sql_request += column_str + " VALUES " + values_str
                 print(sql_request)
