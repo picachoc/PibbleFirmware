@@ -183,7 +183,7 @@ class PibbleDatabase:
                     
 
                     column_str += str(key)
-                    if args[key].isdigit():
+                    if str(args[key]).isdigit():
                         values_str += str(args[key])
                     else:
                         values_str += "'" + str(args[key]) + "'"
