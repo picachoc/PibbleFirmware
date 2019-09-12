@@ -169,16 +169,18 @@ class PibbleDatabase:
                 sql_request = "INSERT INTO user_objects "
                 column_str = "("
                 values_str = "("
-                first = True
+
+                id_request = "SELECT count(id) FROM user_objects"
+                id = int(self.cursor.execute(id_request)) + 1
+                column_str += "id, "
+                values_str += str(id) + ", "
                 
                 for key in args:
-                    if first != True:
-                        column_str += ", "
-                        values_str += ", "
+                    column_str += ", "
+                    values_str += ", "
 
                     column_str += str(key)
                     values_str += str(args[key])
-                    first = False
                 
                 column_str += ")"
                 values_str += ")"
