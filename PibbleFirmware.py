@@ -104,8 +104,8 @@ def getObjectByName(table, name=None):
 @app.route('/catalog', methods=['POST'])
 def addUserObject():
     args = {}
-    for key in request.args.keys():
-        args.update({key : request.args.get(key)})
+    for key in request.form.keys():
+        args.update({key : request.form.get(key)})
     return jsonify(database.addUserObject(args))
 
 
