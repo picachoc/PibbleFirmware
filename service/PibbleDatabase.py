@@ -193,6 +193,7 @@ class PibbleDatabase:
                 print(sql_request)
 
                 self.cursor.execute(sql_request)
+                self.conn.commit()
                 return {"success" : True}
             except(Exception) as err:
                 print(err)
