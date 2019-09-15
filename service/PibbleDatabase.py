@@ -73,7 +73,6 @@ class PibbleDatabase:
                 visibility = args.pop("visible")
                 liste = []
                 
-                ##self.cursor.execute("SELECT * FROM {}".format(table))
                 sql_request = "SELECT * FROM {}".format(table)
                 first = True
                 for key in args:
@@ -84,9 +83,7 @@ class PibbleDatabase:
                                 sql_request += " WHERE "
 
                             if not args[key].isdigit():
-                                if key == "name" and args[key] == "NOT NULL":               ## a
-                                    sql_request +=  "{} IS {}".format(key, args[key])       ## enlever
-                                elif key == "name":
+                                if key == "name":
                                     sql_request +=  "{} LIKE '{}%'".format(key, args[key])
                                 else:
                                     sql_request +=  "{} = '{}'".format(key, args[key])
@@ -155,7 +152,7 @@ class PibbleDatabase:
     def getAlignInit(self):
         if self.inited:
             try:
-                objs_dict = self.getAllFromTable("stars", {"visible" : True, "name" : "NOT NULL"})
+                objs_dict = self.getAllFromTable("stars", {"visible" : True})
                 return objs_dict
             except(Exception) as err:
                 print(err)
@@ -166,15 +163,16 @@ class PibbleDatabase:
     def addUserObject(self, args):
         if self.inited:
             try:
-                sql_request = "INSERT INTO user_objects "
+                sql_request = "INSERT INTO user_point "
                 column_str = "("
                 values_str = "("
                 first = True
 
-                id_request = "SELECT count(id) FROM user_objects"
-                id = int(self.cursor.execute(id_request)) + 1
+                id_request = "SELECT count(id) as count FROM user_point"
+                self.cursor.execute(id_request)
+                id_value = int(self.cursor.fetchall()[0][0]) + 1
                 column_str += "id, "
-                values_str += str(id) + ", "
+                values_str += str(id_value) + ", "
                 
                 for key in args:
                     if first == False:
