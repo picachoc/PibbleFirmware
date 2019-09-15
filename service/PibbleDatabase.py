@@ -23,7 +23,7 @@ class PibbleDatabase:
                 'db_max_items_retrieved' : 500
             }
 
-        self.conn = None
+        self.db = None
         self.cursor = None
 
 
@@ -33,8 +33,8 @@ class PibbleDatabase:
             return False
         else:   
             try:
-                self.conn = MySQLdb.connect(host=self.params["db_host"], user=self.params["db_user"], passwd=self.params["db_password"], db=self.params["db_name"])
-                self.cursor = self.conn.cursor()
+                self.db = MySQLdb.connect(host=self.params["db_host"], user=self.params["db_user"], passwd=self.params["db_password"], db=self.params["db_name"])
+                self.cursor = self.db.cursor()
                 self.inited = True
                 return True
             except(Exception) as err:
@@ -193,7 +193,7 @@ class PibbleDatabase:
                 print(sql_request)
 
                 self.cursor.execute(sql_request)
-                self.conn.commit()
+                self.db.commit()
                 return {"success" : True}
             except(Exception) as err:
                 print(err)
