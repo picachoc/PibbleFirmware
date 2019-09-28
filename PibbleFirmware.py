@@ -62,7 +62,11 @@ def setupValidate():
 
 @app.route('/setup/point', methods=['GET'])
 def setupPoint():
-    return jsonify(None)
+    args = {}
+    for key in request.args.keys():
+        args.update({key : request.args.get(key)})
+
+    return jsonify(brain.setRefObject(args))
 
 
 @app.route('/connection', methods=['GET'])
@@ -72,7 +76,7 @@ def connexion():
         for key in request.args.keys():
             args.update({key : request.args.get(key)})
 
-        brain.init(args)
+        brain.init(args, database)
         database.init()
         motor.init()
         joystick.init()

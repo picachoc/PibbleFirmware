@@ -148,6 +148,23 @@ class PibbleDatabase:
         else:
             return {"inited" : False}
 
+    def getObjectById(self, table=None, identifier=None):
+        if self.inited:
+            try:
+                objs_dict = {}
+                self.cursor.execute("SELECT * FROM objects WHERE ID = {}".format(identifier))
+                row = self.cursor.fetchall()
+                colNames = self.getAllcolumns(table)
+                for obj in row:
+                    for x in range(0,len(colNames)):
+                        objs_dict.update({colNames[x] : obj[x]})
+                return objs_dict
+            except(Exception) as err:
+                print(err)
+                return {"error" : str(err)}
+        else:
+            return {"inited" : False}
+
 
     def getAlignInit(self):
         if self.inited:

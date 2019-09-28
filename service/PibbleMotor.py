@@ -34,6 +34,8 @@ class PibbleMotor:
         self.instructions = Queue()
         self.movement_lock = threading.Lock()
 
+        self.last_command = (0, 0)          ## (0, 0) for stop, (alt, az) forces otherwise
+
         self.stepper = threading.Thread(target=self.steppingThread, daemon=True)
 
 
@@ -101,3 +103,4 @@ class PibbleMotor:
 
     def __del__(self):
         self.running = False
+        self.stepper.join()

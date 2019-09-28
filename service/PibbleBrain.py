@@ -27,17 +27,23 @@ class PibbleBrain:
 
         self.inited = False
 
+        self.db = None
+
         self.telescope_coords = {"longitude" : -0.000500, "latitude" : 51.476852}
         self.times = {"telescope_start_time" : datetime.utcnow(), "system_start_time" : datetime.utcnow(), "delta_time" : 0}        ## All times are utc
         self.telescope_position = {"alt" : 0, "az" : 0, "ra" : 0, "dec" : 0}
+
+        self.calib_objects = {0 : None, 1  : None, 2 : None}
 
         self.astropy_location = None
         self.astropy_coords = {}
 
         solar_system_ephemeris.set("de430")
 
-    def init(self, args):
+    def init(self, args, db):
         try:
+            self.db = db
+
             self.telescope_coords["latitude"] = float(args["latitude"])
             self.telescope_coords["longitude"] = float(args["longitude"])
 
@@ -54,6 +60,21 @@ class PibbleBrain:
 
     def getTime(self):
         return datetime.utcnow() - self.times["delta_time"] ##returns the utc time synced with the phone, that way, it is right even if the pi hasn't the good one.
+
+
+    def setRefObject(self, args):
+        number = args["number"]
+        table = args["table"]
+        identifier = args["id"]
+
+        try:
+            self.calib_objects[number] = self.db.getObjectById(table, identifier)
+        except(Exception) as err:
+            self.inited = False
+            print(err)
+            return {"error" : str(err)}
+        
+
 
     def createCoords(self, obj, q=None, semaphore=None):
         try:
@@ -79,14 +100,6 @@ class PibbleBrain:
 
             number = len(star)
             for x in range(0, number):
-                """while len(threads) >= 100:
-                    size = len(threads)
-                    for x in range(0, size):
-                        if not threads[x].is_alive:
-                            threads.pop(x)
-                            x = 0
-                            size = len(threads)"""
-
                 sema.acquire()      ## Blocks while more than 100 threads are running at once.
                 threads.append(threading.Thread(target=self.createCoords, args=(star[x], q, sema), daemon=True))
                 threads[len(threads)-1].start()
@@ -116,4 +129,3 @@ class PibbleBrain:
 
     def returnPositions(self):
         return self.telescope_position
-        
